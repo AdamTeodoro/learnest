@@ -1,7 +1,8 @@
-import { Controller, Get, Post } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 
-import { IUser } from './interfaces/IUser';
+import { IRequestUser } from './interfaces/IUser';
+
+import { AppService } from './app.service';
 import { UserService } from './services/user/user.service';
 
 @Controller()
@@ -17,11 +18,27 @@ export class AppController {
   }
 
   @Post('/createUser')
-  createUser(body: {user: Omit<IUser, 'id'>}) {
-    const user = this.userService.createUser(body.user);
+  async createUser(
+    @Body() 
+    body: {
+      user: IRequestUser
+    }
+  ) {
+    const { id } = await this.userService.createUser(body.user);
     return {
-      message: 'success',
-      idUser: user.id
+      id,
+      message: 'success'
+    }
+  }
+
+  @Get('/getUserByEmail')
+  async getUserByEmail(
+    @Param() email: string
+  ) {
+    const user = await this.userService.getUserByEmail(email);
+    return {
+      user,
+      message: 'success'
     }
   }
 
